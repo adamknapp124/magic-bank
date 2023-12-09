@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
+  cards          Card[]
+  Account        Account[]
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  ProviderAccountId String
+  refresh_token     String? @db.String
+  access_token      String  @db.String
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Card {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  arena_id Int
+  artist_ids String[]
+  booster Boolean?
+  card_back_id String?
+  cmc       Int
+  collector_number String?
+  color_identity String[]
+  colors String[]
+  digital Boolean
+  edhrec_rank Int
+  finishes String[]
+  flavor_text String?
+  rarity String?
+  released_at DateTime
+  set String?
+  set_id String?
+  set_name String?
+  reprint Boolean?
+  foil Boolean
+  frame String?
+  full_art Boolean
+  games String[]
+  prices Float
+  power     String?
+  toughness String?
+  image     String?
+  cost      String?
+  loyalty String
+  name String
+  oracle_text String
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String? @db.ObjectId
+}
+
