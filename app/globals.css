@@ -10,3 +10,8 @@ html {
 	height: 100%;
 	color: black;
 }
+
+.bgimage {
+	background-image: url(../public//images/vraska.jpg);
+	background-size: cover;
+}
