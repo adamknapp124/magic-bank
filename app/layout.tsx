@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import ToasterContext from './context/ToasterContext';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from './components/navbar/Navbar';
@@ -19,9 +20,10 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={inter.className}>
-				<Navbar />
+				{/* <Navbar /> */}
+				<ToasterContext />
 				{children}
-				<MobileNav />
+				{/* <MobileNav /> */}
 			</body>
 		</html>
 	);

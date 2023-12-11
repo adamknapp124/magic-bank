@@ -7,14 +7,18 @@ import Button from '@/app/components/Button';
 import AuthSocialButton from './AuthSocialButton';
 
 import { BsGoogle } from 'react-icons/bs';
+import { BsGithub } from 'react-icons/bs';
 
 import { useCallback, useState } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { signIn } from 'next-auth/react';
 
 type Variant = 'LOGIN' | 'REGISTER';
 
 const AuthForm = () => {
-	// sets state to the current variant
+	const router = useRouter();
 	const [variant, setVariant] = useState<Variant>('LOGIN');
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -43,21 +47,63 @@ const AuthForm = () => {
 		setIsLoading(true);
 
 		if (variant === 'REGISTER') {
-			axios.post('/api/register', data);
+			axios
+				.post('/api/register', data)
+				.then(() =>
+					signIn('credentials', {
+						...data,
+						redirect: false,
+					})
+				)
+				.then((callback) => {
+					if (callback?.error) {
+						toast.error('Invalid credentials!');
+					}
+
+					if (callback?.ok) {
+						router.push('/conversations');
+					}
+				})
+				.catch(() => toast.error('Something went wrong!'))
+				.finally(() => setIsLoading(false));
 		}
 
 		if (variant === 'LOGIN') {
-			// NextAuth signIn
+			signIn('credentials', {
+				...data,
+				redirect: false,
+			})
+				.then((callback) => {
+					if (callback?.error) {
+						toast.error('Invalid credentials!');
+					}
+
+					if (callback?.ok) {
+						router.push('/');
+					}
+				})
+				.finally(() => setIsLoading(false));
 		}
 	};
 
 	const socialAction = (action: string) => {
 		setIsLoading(true);
-		// NextAuth social signIn
+
+		signIn(action, { redirect: false })
+			.then((callback) => {
+				if (callback?.error) {
+					toast.error('Invalid credentials!');
+				}
+
+				if (callback?.ok) {
+					router.push('/');
+				}
+			})
+			.finally(() => setIsLoading(false));
 	};
 
 	return (
-		<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md ">
+		<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 			{/* <div className="p-5 text-center text-violet-600 font-bold text-4xl">
 				{variant === 'LOGIN' ? 'Sign in to the Vault' : 'Sign up for the Vault'}
 			</div> */}
@@ -110,6 +156,12 @@ const AuthForm = () => {
 						<AuthSocialButton
 							icon={BsGoogle}
 							onClick={() => socialAction('google')}
+						/>
+					</div>
+					<div className="mt-6 flex gap-2">
+						<AuthSocialButton
+							icon={BsGithub}
+							onClick={() => socialAction('github')}
 						/>
 					</div>
 				</div>
